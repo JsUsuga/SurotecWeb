@@ -1,4 +1,5 @@
 package repository.user;
 
-public class UserRepositoryImpl {
+public class UserRepositoryImpl implements UserRepository {
+
 }
