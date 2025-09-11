@@ -1,4 +1,3 @@
-// model/domain/user/Student.java
 package model.domain.user;
 
 import model.domain.classification.StudentStatus;
