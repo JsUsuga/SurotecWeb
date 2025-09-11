@@ -1,31 +1,17 @@
+// model/domain/user/Student.java
 package model.domain.user;
 
 import model.domain.classification.StudentStatus;
 
-public class Student extends User{
-    //Declaración de atributos
-    private String fullName; //Revisar, pues admin y usuario regular también tienen nombre completo, podría pasar este atributo para la clase abstracta
+public class Student extends User {
     private StudentStatus status;
 
-    //Constructores de clase
-    public Student() {
-    }
-
-    public Student(int id, String username, String password, String email, String fullName, StudentStatus status) {
-        super(id, username, password, email);
-        this.fullName = fullName;
+    public Student(int id, String firstName, String lastName, String username, String password, String email, StudentStatus status) {
+        super(id, firstName, lastName, username, password, email); // Llama al constructor de User
         this.status = status;
     }
 
-    //Getters y Setters
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
+    // Getters y setters
     public StudentStatus getStatus() {
         return status;
     }
@@ -34,12 +20,9 @@ public class Student extends User{
         this.status = status;
     }
 
-    //Método toString
     @Override
     public String toString() {
-        return "Student{" +
-                "fullName='" + fullName + '\'' +
-                ", status=" + status +
-                '}';
+        return "Student{id=" + getId() + ", firstName='" + getFirstName() + "', lastName='" + getLastName() +
+                "', username='" + getUsername() + "', email='" + getEmail() + "', status=" + status + "}";
     }
 }

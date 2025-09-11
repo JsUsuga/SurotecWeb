@@ -1,5 +1,7 @@
 package model.domain.user;
 
+import model.domain.classification.Role;
+
 public class UserRole {
     private int userId;
     private Role role;

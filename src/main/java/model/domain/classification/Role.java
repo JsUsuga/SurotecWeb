@@ -1,4 +1,4 @@
-package model.domain.user;
+package model.domain.classification;
 
 public enum Role {
 
