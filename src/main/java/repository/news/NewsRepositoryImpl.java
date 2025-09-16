@@ -12,15 +12,16 @@ public class NewsRepositoryImpl implements NewsRepository {
 
     @Override
     public void create(News news) {
-        String sql = "INSERT INTO news (id, author_id, title, category) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO news (author_id, title, content, published_date, category) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setLong(1, news.getId());
-            stmt.setLong(2, news.getAuthorId());
-            stmt.setString(3, news.getTitle());
-            stmt.setString(4, news.getCategory().name()); // enum como String
+            stmt.setLong(1, news.getAuthorId());
+            stmt.setString(2, news.getTitle());
+            stmt.setString(3, news.getContent());
+            stmt.setDate(4, new java.sql.Date(news.getPublishedDate().getTime())); // convertir util.Date → sql.Date
+            stmt.setString(5, news.getCategory().name());
 
             stmt.executeUpdate();
 
@@ -43,6 +44,8 @@ public class NewsRepositoryImpl implements NewsRepository {
                         rs.getLong("id"),
                         rs.getLong("author_id"),
                         rs.getString("title"),
+                        rs.getString("content"), // nuevo campo
+                        rs.getDate("published_date"), // nuevo campo
                         NewsCategory.valueOf(rs.getString("category"))
                 );
                 newsList.add(news);
@@ -70,6 +73,8 @@ public class NewsRepositoryImpl implements NewsRepository {
                         rs.getLong("id"),
                         rs.getLong("author_id"),
                         rs.getString("title"),
+                        rs.getString("content"), // nuevo campo
+                        rs.getDate("published_date"), // nuevo campo
                         NewsCategory.valueOf(rs.getString("category"))
                 );
             }
@@ -96,6 +101,8 @@ public class NewsRepositoryImpl implements NewsRepository {
                         rs.getLong("id"),
                         rs.getLong("author_id"),
                         rs.getString("title"),
+                        rs.getString("content"), // nuevo campo
+                        rs.getDate("published_date"), // nuevo campo
                         NewsCategory.valueOf(rs.getString("category"))
                 );
                 newsList.add(news);

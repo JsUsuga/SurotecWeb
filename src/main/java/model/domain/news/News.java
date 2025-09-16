@@ -1,40 +1,57 @@
 package model.domain.news;
 
-import model.domain.classification.NewsCategory;
+import java.util.Date;
 
 public class News {
     private Long id;
     private Long authorId;
     private String title;
+    private String content;
+    private Date publishedDate;
     private NewsCategory category;
 
-    public News(Long id, Long authorId, String title, NewsCategory category) {
+    // Constructor completo
+    public News(Long id, Long authorId, String title, String content, Date publishedDate, NewsCategory category) {
         this.id = id;
         this.authorId = authorId;
         this.title = title;
+        this.content = content;
+        this.publishedDate = publishedDate;
         this.category = category;
     }
 
-    public News(long id, long authorId, String title, model.domain.news.NewsCategory category) {
-    }
+    // Constructor vacío (opcional, útil para frameworks como Hibernate/JPA)
+    public News() {}
 
-    // Getters & setters
+    // Getters y setters
     public Long getId() { return id; }
-    public Long getAuthorId() { return authorId; }
-    public String getTitle() { return title; }
-    public NewsCategory getCategory() { return category; }
-
     public void setId(Long id) { this.id = id; }
+
+    public Long getAuthorId() { return authorId; }
     public void setAuthorId(Long authorId) { this.authorId = authorId; }
+
+    public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
+
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
+
+    public Date getPublishedDate() { return publishedDate; }
+    public void setPublishedDate(Date publishedDate) { this.publishedDate = publishedDate; }
+
+    public NewsCategory getCategory() { return category; }
     public void setCategory(NewsCategory category) { this.category = category; }
 
     @Override
     public String toString() {
-        return "News{id=" + id +
+        return "News{" +
+                "id=" + id +
                 ", authorId=" + authorId +
                 ", title='" + title + '\'' +
-                ", category=" + category + '}';
+                ", content='" + content + '\'' +
+                ", publishedDate=" + publishedDate +
+                ", category=" + category +
+                '}';
     }
 }
 
