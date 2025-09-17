@@ -6,32 +6,21 @@ import java.sql.SQLException;
 
 public class DatabaseConnection {
 
+    private static final String URL = "jdbc:mysql://localhost:3306/surotec_web";
+    private static final String USER = "root";
+    private static final String PASSWORD = "123456";
+
     public static Connection getConnection() {
-    }
-
-    public Connection connect() {
         Connection connection = null;
-
         try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/surotec_web", "root", "123456");
-            if (connection != null) {
-                System.out.println("Conexión exitosa a la base de datos surotec");
-            }
+            connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            System.out.println("✅ Conexión exitosa a la base de datos surotec_web");
         } catch (SQLException e) {
-            System.out.println("Error de conexión: " + e.getMessage());
+            System.out.println("❌ Error al conectar a la base de datos");
+            e.printStackTrace();
         }
-
         return connection;
     }
-
-    public void close(Connection connection) {
-        try {
-            if (connection != null && !connection.isClosed()) {
-                connection.close();
-                System.out.println("Database connection closed.");
-            }
-        } catch (SQLException e) {
-            System.out.println("Error closing connection: " + e.getMessage());
-        }
-    }
 }
+
+
