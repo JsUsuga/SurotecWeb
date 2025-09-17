@@ -65,7 +65,7 @@ public class NewsRepositoryImpl implements NewsRepository {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setLong(1, id);
+            stmt.setLong(1, id); // Asignamos el valor del parámetro en el WHERE
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
@@ -73,8 +73,8 @@ public class NewsRepositoryImpl implements NewsRepository {
                         rs.getLong("id"),
                         rs.getLong("author_id"),
                         rs.getString("title"),
-                        rs.getString("content"), // nuevo campo
-                        rs.getDate("published_date"), // nuevo campo
+                        rs.getString("content"),
+                        rs.getDate("published_date"),
                         NewsCategory.valueOf(rs.getString("category"))
                 );
             }
@@ -93,7 +93,7 @@ public class NewsRepositoryImpl implements NewsRepository {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, category.name());
+            stmt.setString(1, category.name()); // Usamos el nombre del enum como String
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -101,8 +101,8 @@ public class NewsRepositoryImpl implements NewsRepository {
                         rs.getLong("id"),
                         rs.getLong("author_id"),
                         rs.getString("title"),
-                        rs.getString("content"), // nuevo campo
-                        rs.getDate("published_date"), // nuevo campo
+                        rs.getString("content"),
+                        rs.getDate("published_date"),
                         NewsCategory.valueOf(rs.getString("category"))
                 );
                 newsList.add(news);
