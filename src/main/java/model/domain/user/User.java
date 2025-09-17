@@ -1,7 +1,7 @@
 package model.domain.user;
 
 public abstract class User {
-    //Declaración de atributos
+
     private int id;
     private String firstName;    // New field
     private String lastName;     // New field
@@ -9,7 +9,6 @@ public abstract class User {
     private String password;
     private String email;
 
-    //Constructores de clase
     public User() {
     }
 
@@ -22,7 +21,6 @@ public abstract class User {
         this.email = email;
     }
 
-    //Getters y setters
     public int getId() {
         return id;
     }
@@ -71,7 +69,6 @@ public abstract class User {
         this.email = email;
     }
 
-    //Método toString
     @Override
     public String toString() {
         return "User{" +
