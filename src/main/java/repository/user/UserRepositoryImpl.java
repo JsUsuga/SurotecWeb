@@ -23,7 +23,7 @@ public class UserRepositoryImpl implements UserRepository {
         Connection conn = null;
         PreparedStatement pstmt = null;
         try {
-            conn = dbConnection.connect();
+            conn = DatabaseConnection.getConnection();
             pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, user.getFirstName());
             pstmt.setString(2, user.getLastName());
@@ -46,7 +46,7 @@ public class UserRepositoryImpl implements UserRepository {
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
-                if (conn != null) dbConnection.close(conn);
+                if (conn != null) conn.close();
             } catch (SQLException e) {
                 System.out.println("Error closing resources: " + e.getMessage());
             }
@@ -61,7 +61,7 @@ public class UserRepositoryImpl implements UserRepository {
         Statement stmt = null;
         ResultSet rs = null;
         try {
-            conn = dbConnection.connect();
+            conn = DatabaseConnection.getConnection();
             stmt = conn.createStatement();
             rs = stmt.executeQuery(sql);
             while (rs.next()) {
@@ -80,7 +80,7 @@ public class UserRepositoryImpl implements UserRepository {
             try {
                 if (rs != null) rs.close();
                 if (stmt != null) stmt.close();
-                if (conn != null) dbConnection.close(conn);
+                if (conn != null) conn.close();
             } catch (SQLException e) {
                 System.out.println("Error closing resources: " + e.getMessage());
             }
@@ -95,7 +95,7 @@ public class UserRepositoryImpl implements UserRepository {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            conn = dbConnection.connect();
+            conn = DatabaseConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, id);
             rs = pstmt.executeQuery();
@@ -114,7 +114,7 @@ public class UserRepositoryImpl implements UserRepository {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
-                if (conn != null) dbConnection.close(conn);
+                if (conn != null) conn.close();
             } catch (SQLException e) {
                 System.out.println("Error closing resources: " + e.getMessage());
             }
@@ -129,7 +129,7 @@ public class UserRepositoryImpl implements UserRepository {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            conn = dbConnection.connect();
+            conn = DatabaseConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, email);
             rs = pstmt.executeQuery();
@@ -148,7 +148,7 @@ public class UserRepositoryImpl implements UserRepository {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
-                if (conn != null) dbConnection.close(conn);
+                if (conn != null) conn.close();
             } catch (SQLException e) {
                 System.out.println("Error closing resources: " + e.getMessage());
             }
@@ -162,7 +162,7 @@ public class UserRepositoryImpl implements UserRepository {
         Connection conn = null;
         PreparedStatement pstmt = null;
         try {
-            conn = dbConnection.connect();
+            conn = DatabaseConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, userId);
             pstmt.setString(2, roleName);
@@ -173,7 +173,7 @@ public class UserRepositoryImpl implements UserRepository {
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
-                if (conn != null) dbConnection.close(conn);
+                if (conn != null) conn.close();
             } catch (SQLException e) {
                 System.out.println("Error closing resources: " + e.getMessage());
             }
@@ -186,7 +186,7 @@ public class UserRepositoryImpl implements UserRepository {
         Connection conn = null;
         PreparedStatement pstmt = null;
         try {
-            conn = dbConnection.connect();
+            conn = DatabaseConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, value);
             pstmt.setInt(2, user.getId());
@@ -197,7 +197,7 @@ public class UserRepositoryImpl implements UserRepository {
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
-                if (conn != null) dbConnection.close(conn);
+                if (conn != null) conn.close();
             } catch (SQLException e) {
                 System.out.println("Error closing resources: " + e.getMessage());
             }
@@ -210,7 +210,7 @@ public class UserRepositoryImpl implements UserRepository {
         Connection conn = null;
         PreparedStatement pstmt = null;
         try {
-            conn = dbConnection.connect();
+            conn = DatabaseConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, id);
             pstmt.executeUpdate();
@@ -220,7 +220,7 @@ public class UserRepositoryImpl implements UserRepository {
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
-                if (conn != null) dbConnection.close(conn);
+                if (conn != null) conn.close();
             } catch (SQLException e) {
                 System.out.println("Error closing resources: " + e.getMessage());
             }
