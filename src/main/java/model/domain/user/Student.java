@@ -3,10 +3,15 @@ package model.domain.user;
 import model.domain.classification.StudentStatus;
 
 public class Student extends User {
+    //Declaración de atributos
     private StudentStatus status;
 
+    //Constructores de clase
+    public Student() {
+    }
+
     public Student(int id, String firstName, String lastName, String username, String password, String email, StudentStatus status) {
-        super(id, firstName, lastName, username, password, email); // Llama al constructor de User
+        super(id, firstName, lastName, username, password, email);
         this.status = status;
     }
 
@@ -19,9 +24,11 @@ public class Student extends User {
         this.status = status;
     }
 
+    //Método toString
     @Override
     public String toString() {
-        return "Student{id=" + getId() + ", firstName='" + getFirstName() + "', lastName='" + getLastName() +
-                "', username='" + getUsername() + "', email='" + getEmail() + "', status=" + status + "}";
+        return "Student{" +
+                "status=" + status +
+                '}';
     }
 }
