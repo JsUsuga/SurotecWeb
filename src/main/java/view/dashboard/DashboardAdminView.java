@@ -1,8 +1,8 @@
-
 package view.dashboard;
 
 import model.domain.user.Administrator;
-import service.admin.AdminServiceImpl;
+import service.user.AdminServiceImpl;
+import view.LoginView;
 
 import java.util.List;
 import java.util.Scanner;
@@ -12,9 +12,9 @@ public class DashboardAdminView {
     private final AdminServiceImpl adminService;
     private final Scanner scanner;
 
-    public DashboardAdminView(LoginView loginView) {
+    public DashboardAdminView(LoginView loginView, AdminServiceImpl adminService) {
         this.loginView = loginView;
-        this.adminService = new AdminServiceImpl();
+        this.adminService = adminService;
         this.scanner = new Scanner(System.in);
     }
 
@@ -95,7 +95,7 @@ public class DashboardAdminView {
 
     private void logout() {
         System.out.println("Cerrando sesión...");
-        loginView.getLoggedInAdmin();
+        loginView.logout();
         System.out.println("Sesión cerrada. ¡Hasta pronto!");
     }
 }

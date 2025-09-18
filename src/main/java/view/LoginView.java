@@ -1,8 +1,8 @@
-// view/LoginView.java
 package view;
 
 import model.domain.user.Administrator;
-import service.admin.AdminServiceImpl;
+import service.user.AdminServiceImpl;
+import view.dashboard.DashboardAdminView;
 
 import java.util.Scanner;
 
@@ -13,6 +13,11 @@ public class LoginView {
     public LoginView() {
         this.adminService = new AdminServiceImpl();
         this.loggedInAdmin = null;
+    }
+
+    public static void main(String[] args) {
+        LoginView loginView = new LoginView();
+        loginView.showLogin();
     }
 
     public void showLogin() {
@@ -26,9 +31,8 @@ public class LoginView {
             String password = scanner.nextLine();
 
             try {
-                // Simulamos búsqueda por username y validación de password
-                Administrator admin = findAdminByUsername(username);
-                if (admin != null && admin.getPassword().equals(password)) {
+                Administrator admin = adminService.findAdminByUsername(username);
+                if (admin != null && admin.getPassword().equals(password)) { // Nota: En producción, usa hashing
                     loggedInAdmin = admin;
                     System.out.println("¡Login exitoso! Bienvenido, " + loggedInAdmin.getFirstName() + "!");
                 } else {
@@ -41,20 +45,13 @@ public class LoginView {
         showDashboard();
     }
 
-    private Administrator findAdminByUsername(String username) {
-        // Simulación: Busca en la lista de todos los admins
-        for (Administrator admin : adminService.getAllAdmins()) {
-            if (admin.getUsername().equals(username)) {
-                return admin;
-            }
-        }
-        return null;
+    public void showDashboard() {
+        DashboardAdminView dashboard = new DashboardAdminView(this, adminService);
+        dashboard.show();
     }
 
-    public void showDashboard() {
-        // Llamada al dashboard renombrado
-        DashboardAdminView dashboard = new DashboardAdminView(this);
-        dashboard.show();
+    public void logout() {
+        loggedInAdmin = null;
     }
 
     public Administrator getLoggedInAdmin() {

@@ -1,4 +1,4 @@
-package service.admin;
+package service.user;
 
 import model.domain.user.Administrator;
 

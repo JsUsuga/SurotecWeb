@@ -1,8 +1,8 @@
-package service.admin;
+package service.user;
 
 import model.domain.user.Administrator;
-import repository.admin.AdminRepository;
-import repository.admin.AdminRepositoryImpl;
+import repository.user.AdminRepository;
+import repository.user.AdminRepositoryImpl;
 import util.Validator;
 
 import java.util.List;
@@ -11,13 +11,13 @@ public class AdminServiceImpl implements AdminService {
     private final AdminRepository adminRepository;
 
     public AdminServiceImpl() {
-        // Inyección de dependencia usando la interfaz
+        // Inyección de dependencia: se usa la interfaz para mayor flexibilidad
         this.adminRepository = new AdminRepositoryImpl();
     }
 
     @Override
     public void createAdmin(Administrator admin) {
-        // Validaciones básicas
+        // Validaciones básicas (SOLID: SRP - Responsabilidad única de validar en servicio)
         if (admin == null) {
             throw new IllegalArgumentException("Administrator object cannot be null.");
         }
@@ -27,21 +27,42 @@ public class AdminServiceImpl implements AdminService {
         if (admin.getPassword() == null || admin.getPassword().trim().isEmpty()) {
             throw new IllegalArgumentException("Password cannot be null or empty.");
         }
+        if (admin.getFirstName() == null || admin.getFirstName().trim().isEmpty()) {
+            throw new IllegalArgumentException("First name cannot be null or empty.");
+        }
+        if (admin.getLastName() == null || admin.getLastName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Last name cannot be null or empty.");
+        }
+        if (admin.getUsername() == null || admin.getUsername().trim().isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be null or empty.");
+        }
 
-        // Validación de formato
+        // Validación de formato con regex (utilizando Validator para DRY - No repetir lógica de validación)
         if (!Validator.isValidEmail(admin.getEmail())) {
             throw new IllegalArgumentException("Invalid email format for administrator.");
         }
         if (!Validator.isValidPassword(admin.getPassword())) {
             throw new IllegalArgumentException("Password must be at least 8 characters long and contain a letter and a number.");
         }
+        if (!Validator.isValidName(admin.getFirstName())) {
+            throw new IllegalArgumentException("First name must contain only letters and spaces.");
+        }
+        if (!Validator.isValidName(admin.getLastName())) {
+            throw new IllegalArgumentException("Last name must contain only letters and spaces.");
+        }
+        if (!Validator.isValidUsername(admin.getUsername())) {
+            throw new IllegalArgumentException("Username must be alphanumeric and may include underscores.");
+        }
 
-        // Verificar unicidad del email
+        // Verificar unicidad del email y username usando los métodos de AdminRepository
         if (adminRepository.findByEmail(admin.getEmail()) != null) {
             throw new IllegalArgumentException("A user with this email already exists.");
         }
+        if (adminRepository.findByUsername(admin.getUsername()) != null) {
+            throw new IllegalArgumentException("A user with this username already exists.");
+        }
 
-        // Delegar la creación al repositorio
+        // Delegar la creación al repositorio (KISS - Mantener simple)
         adminRepository.create(admin);
     }
 
@@ -89,23 +110,41 @@ public class AdminServiceImpl implements AdminService {
         String lowerField = field.toLowerCase();
         switch (lowerField) {
             case "firstname":
-            case "lastname":
-            case "username":
-            case "password":
-            case "email":
-                // Validación adicional para email si se actualiza
-                if ("email".equals(lowerField) && !Validator.isValidEmail(value)) {
-                    throw new IllegalArgumentException("Invalid email format.");
+                if (!Validator.isValidName(value)) {
+                    throw new IllegalArgumentException("First name must contain only letters and spaces.");
                 }
-                // Validación adicional para password si se actualiza
-                if ("password".equals(lowerField) && !Validator.isValidPassword(value)) {
+                break;
+            case "lastname":
+                if (!Validator.isValidName(value)) {
+                    throw new IllegalArgumentException("Last name must contain only letters and spaces.");
+                }
+                break;
+            case "username":
+                if (!Validator.isValidUsername(value)) {
+                    throw new IllegalArgumentException("Username must be alphanumeric and may include underscores.");
+                }
+                if (adminRepository.findByUsername(value) != null && !admin.getUsername().equals(value)) {
+                    throw new IllegalArgumentException("A user with this username already exists.");
+                }
+                break;
+            case "password":
+                if (!Validator.isValidPassword(value)) {
                     throw new IllegalArgumentException("Password must be at least 8 characters long and contain a letter and a number.");
                 }
-                adminRepository.update(admin, field, value);
+                break;
+            case "email":
+                if (!Validator.isValidEmail(value)) {
+                    throw new IllegalArgumentException("Invalid email format.");
+                }
+                if (adminRepository.findByEmail(value) != null && !admin.getEmail().equals(value)) {
+                    throw new IllegalArgumentException("A user with this email already exists.");
+                }
                 break;
             default:
                 throw new IllegalArgumentException("Invalid field to update: " + field);
         }
+
+        adminRepository.update(admin, field, value);
     }
 
     @Override
@@ -113,7 +152,6 @@ public class AdminServiceImpl implements AdminService {
         if (id <= 0) {
             throw new IllegalArgumentException("Admin ID must be a positive integer.");
         }
-        // Verificar que el admin existe antes de borrar
         Administrator admin = adminRepository.readById(id);
         if (admin == null) {
             throw new RuntimeException("Admin not found with ID: " + id + ". Deletion failed.");
@@ -126,10 +164,10 @@ public class AdminServiceImpl implements AdminService {
         if (userId <= 0 || roleName == null || roleName.trim().isEmpty()) {
             throw new IllegalArgumentException("User ID and role name must be valid.");
         }
-        // Verificar que el admin existe
         if (adminRepository.findByUserId(userId) == null) {
             throw new RuntimeException("Admin not found with User ID: " + userId);
         }
+        // Podrías añadir validación para roleName (e.g., contra una lista de roles válidos)
         adminRepository.assignRole(userId, roleName);
     }
 
@@ -138,7 +176,6 @@ public class AdminServiceImpl implements AdminService {
         if (userId <= 0) {
             throw new IllegalArgumentException("User ID must be a positive integer.");
         }
-        // Verificar que el admin existe
         if (adminRepository.findByUserId(userId) == null) {
             throw new RuntimeException("Admin not found with User ID: " + userId);
         }
