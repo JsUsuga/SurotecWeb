@@ -7,28 +7,18 @@ import repository.user.StudentRepositoryImpl;
 
 import java.sql.Connection;
 
+
 public class DatabaseTest {
-
     public static void main(String[] args) {
-
-
-        StudentRepository repositoryStudentTest = new StudentRepositoryImpl();
-
-        Student studentTest = new Student(
-                1026746533,
-                "Samuel",
-                "Alvarez",
-                "samuel01",
-                "01112100",
-                "samuel@gmail.com",
-                StudentStatus.ACTIVE
-        );
-
-        repositoryStudentTest.create(studentTest);
-
-
-
-
-
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            if (connection != null) {
+                    System.out.println("✅ Conexión verificada correctamente");
+            } else {
+                    System.out.println("❌ No se pudo establecer la conexión");
+            }
+        } catch (Exception e) {
+                System.out.println("Error al conectar: " + e.getMessage());
+        }
     }
 }
+
