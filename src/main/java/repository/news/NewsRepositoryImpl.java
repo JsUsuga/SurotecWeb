@@ -14,7 +14,7 @@ public class NewsRepositoryImpl implements NewsRepository {
     public void create(News news) {
         String sql = "INSERT INTO news (author_id, title, content, published_date, category) VALUES (?, ?, ?, ?, ?)";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setLong(1, news.getAuthorId());
@@ -35,7 +35,7 @@ public class NewsRepositoryImpl implements NewsRepository {
         List<News> newsList = new ArrayList<>();
         String sql = "SELECT * FROM news";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.connect();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
@@ -62,7 +62,7 @@ public class NewsRepositoryImpl implements NewsRepository {
         String sql = "SELECT * FROM news WHERE id = ?";
         News news = null;
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setLong(1, id);
@@ -90,7 +90,7 @@ public class NewsRepositoryImpl implements NewsRepository {
         List<News> newsList = new ArrayList<>();
         String sql = "SELECT * FROM news WHERE category = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, category.name());
