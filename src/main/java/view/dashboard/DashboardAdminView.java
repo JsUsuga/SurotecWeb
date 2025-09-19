@@ -1,163 +1,127 @@
 package view.dashboard;
 
-import model.domain.classification.StudentStatus;
+import service.user.AdminServiceImpl;
 import model.domain.user.Administrator;
-import model.domain.user.Student;
-import model.domain.user.User;
-import service.user.UserServiceImpl;
+import model.domain.classification.Role;
+import view.LoginView;
 
-import java.util.List;
 import java.util.Scanner;
 
 public class DashboardAdminView {
-    private final UserServiceImpl userService;
-    private final User currentUser;
+    private final LoginView loginView;
+    private final AdminServiceImpl adminService;
     private final Scanner scanner;
 
-    public DashboardAdminView(UserServiceImpl userService, User currentUser) {
-        this.userService = userService;
-        this.currentUser = currentUser;
+    public DashboardAdminView(LoginView loginView, AdminServiceImpl adminService) {
+        this.loginView = loginView;
+        this.adminService = adminService;
         this.scanner = new Scanner(System.in);
     }
 
-    public void start() {
-        if (!(currentUser instanceof Administrator)) {
-            System.out.println("Error: Solo administradores pueden acceder a este dashboard.");
-            scanner.close();
-            return;
-        }
-        System.out.println("\n¡Bienvenido al Dashboard de Administración, " + currentUser.getFirstName() + " " + currentUser.getLastName() + "!");
+    public void show() {
         while (true) {
-            displayMenu();
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // Consumir el salto de línea
+            Administrator loggedInAdmin = loginView.getLoggedInAdmin();
+            if (loggedInAdmin == null) {
+                System.out.println("Sesión cerrada. Regresando al login...");
+                break;
+            }
 
-            switch (choice) {
+            System.out.println("\n=== Panel de Administración ===");
+            System.out.println("Bienvenido, " + loggedInAdmin.getFirstName() + " " + loggedInAdmin.getLastName());
+            System.out.println("1. Listar todos los administradores");
+            System.out.println("2. Asignar rol a un administrador");
+            System.out.println("3. Actualizar datos de un administrador");
+            System.out.println("4. Cerrar sesión");
+            System.out.print("Elige una opción: ");
+
+            int option = scanner.nextInt();
+            scanner.nextLine(); // Consumir salto de línea
+
+            switch (option) {
                 case 1:
-                    createUser();
+                    listAllAdmins();
                     break;
                 case 2:
-                    getAllUsers();
-                    break;
-                case 3:
-                    getUserById();
-                    break;
-                case 4:
-                    getUserByEmail();
-                    break;
-                case 5:
                     assignRole();
                     break;
-                case 6:
-                    updateUser();
+                case 3:
+                    updateAdmin();
                     break;
-                case 7:
-                    deleteUser();
+                case 4:
+                    loginView.logout();
                     break;
-                case 8:
-                    System.out.println("Saliendo del Dashboard...");
-                    scanner.close();
-                    return;
                 default:
-                    System.out.println("Opción inválida. Intente de nuevo.");
+                    System.out.println("Opción inválida. Intenta de nuevo.");
             }
         }
     }
 
-    private void displayMenu() {
-        System.out.println("\n=== Menú de Gestión de Usuarios ===");
-        System.out.println("1. Crear usuario");
-        System.out.println("2. Ver todos los usuarios");
-        System.out.println("3. Buscar usuario por ID");
-        System.out.println("4. Buscar usuario por email");
-        System.out.println("5. Asignar rol a usuario");
-        System.out.println("6. Actualizar usuario");
-        System.out.println("7. Eliminar usuario");
-        System.out.println("8. Salir");
-        System.out.print("Seleccione una opción: ");
-    }
-
-    private void createUser() {
-        System.out.print("Tipo de usuario (1 para Administrator, 2 para Student): ");
-        int type = scanner.nextInt();
-        scanner.nextLine(); // Consumir el salto de línea
-
-        System.out.print("Nombre: ");
-        String firstName = scanner.nextLine();
-        System.out.print("Apellido: ");
-        String lastName = scanner.nextLine();
-        System.out.print("Usuario: ");
-        String username = scanner.nextLine();
-        System.out.print("Contraseña: ");
-        String password = scanner.nextLine();
-        System.out.print("Email: ");
-        String email = scanner.nextLine();
-
-        if (type == 2) {
-            System.out.print("Estado (ACTIVO/INACTIVO): ");
-            String statusStr = scanner.nextLine().toUpperCase();
-            StudentStatus status = StudentStatus.valueOf(statusStr);
-            Student student = new Student(0, firstName, lastName, username, password, email, status);
-            userService.createUser(student);
-        } else {
-            Administrator admin = new Administrator(0, firstName, lastName, username, password, email, "manage");
-            userService.createUser(admin);
+    private void listAllAdmins() {
+        System.out.println("\n=== Lista de Administradores ===");
+        for (Administrator admin : adminService.getAllAdmins()) {
+            System.out.println(admin);
         }
-    }
-
-    private void getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        if (users.isEmpty()) {
-            System.out.println("No hay usuarios registrados.");
-        } else {
-            users.forEach(System.out::println);
-        }
-    }
-
-    private void getUserById() {
-        System.out.print("Ingrese el ID del usuario: ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // Consumir el salto de línea
-        User user = userService.getUserById(id);
-        System.out.println(user != null ? user : "Usuario no encontrado.");
-    }
-
-    private void getUserByEmail() {
-        System.out.print("Ingrese el email del usuario: ");
-        String email = scanner.nextLine();
-        User user = userService.getUserByEmail(email);
-        System.out.println(user != null ? user : "Usuario no encontrado.");
     }
 
     private void assignRole() {
-        System.out.print("Ingrese el ID del usuario: ");
+        System.out.println("\n=== Asignar Rol ===");
+        System.out.print("Ingresa el ID del usuario al que deseas asignar un rol: ");
         int userId = scanner.nextInt();
-        scanner.nextLine(); // Consumir el salto de línea
-        System.out.print("Ingrese el nombre del rol: ");
-        String roleName = scanner.nextLine();
-        userService.assignRoleToUser(userId, roleName);
+        scanner.nextLine(); // Consumir salto de línea
+
+        System.out.println("Roles disponibles:");
+        for (Role role : Role.values()) {
+            System.out.println(role);
+        }
+        System.out.print("Ingresa el rol: ");
+        String roleInput = scanner.nextLine().toUpperCase();
+        Role role = null;
+        try {
+            role = Role.valueOf(roleInput);
+            adminService.assignRoleToAdmin(userId, role);
+            System.out.println("Rol asignado exitosamente.");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Rol inválido. Por favor, usa uno de los roles listados.");
+        } catch (Exception e) {
+            System.out.println("Error al asignar rol: " + e.getMessage());
+        }
     }
 
-    private void updateUser() {
-        System.out.print("Ingrese el ID del usuario: ");
+    private void updateAdmin() {
+        System.out.println("\n=== Actualizar Administrador ===");
+        System.out.print("Ingresa el ID del administrador a actualizar: ");
         int id = scanner.nextInt();
-        scanner.nextLine(); // Consumir el salto de línea
-        User user = userService.getUserById(id);
-        if (user == null) {
-            System.out.println("Usuario no encontrado.");
+        scanner.nextLine(); // Consumir salto de línea
+
+        Administrator admin = adminService.getAdminById(id);
+        if (admin == null) {
+            System.out.println("Administrador no encontrado.");
             return;
         }
-        System.out.print("Ingrese el campo a actualizar (first_name, last_name, username, password, email, status): ");
-        String field = scanner.nextLine();
-        System.out.print("Ingrese el nuevo valor: ");
-        String value = scanner.nextLine();
-        userService.updateUser(user, field, value);
-    }
 
-    private void deleteUser() {
-        System.out.print("Ingrese el ID del usuario a eliminar: ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // Consumir el salto de línea
-        userService.deleteUser(id);
+        System.out.println("Selecciona el campo a actualizar: 1. Nombre, 2. Apellido, 3. Usuario, 4. Contraseña, 5. Email");
+        int fieldOption = scanner.nextInt();
+        scanner.nextLine(); // Consumir salto de línea
+        System.out.print("Ingresa el nuevo valor: ");
+        String value = scanner.nextLine();
+
+        String field = "";
+        switch (fieldOption) {
+            case 1: field = "firstname"; break;
+            case 2: field = "lastname"; break;
+            case 3: field = "username"; break;
+            case 4: field = "password"; break;
+            case 5: field = "email"; break;
+            default:
+                System.out.println("Opción de campo inválida.");
+                return;
+        }
+
+        try {
+            adminService.updateAdmin(admin, field, value);
+            System.out.println("Administrador actualizado exitosamente.");
+        } catch (Exception e) {
+            System.out.println("Error al actualizar administrador: " + e.getMessage());
+        }
     }
 }

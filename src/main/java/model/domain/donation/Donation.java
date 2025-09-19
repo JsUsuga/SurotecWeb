@@ -18,6 +18,39 @@ public class Donation {
     }
 
     // Getters y Setters para todos los atributos...
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public LocalDateTime getDonationDate() {
+        return donationDate;
+    }
+
+    public void setDonationDate(LocalDateTime donationDate) {
+        this.donationDate = donationDate;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public int getFoundationId() {
+        return foundationId;
+    }
+
+    public void setFoundationId(int foundationId) {
+        this.foundationId = foundationId;
+    }
+
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     // ...etc.

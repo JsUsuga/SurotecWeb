@@ -14,21 +14,10 @@ public class UserRole {
         this.role = role;
     }
 
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
+    public int getUserId() { return userId; }
+    public void setUserId(int userId) { this.userId = userId; }
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
 
     @Override
     public String toString() {
