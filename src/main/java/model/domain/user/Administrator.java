@@ -1,5 +1,7 @@
 package model.domain.user;
 
+import model.domain.classification.Role;
+
 public class Administrator extends User {
     private String permissions;
 
@@ -9,6 +11,11 @@ public class Administrator extends User {
     public Administrator(int id, String firstName, String lastName, String username, String password, String email, String permissions) {
         super(id, firstName, lastName, username, password, email);
         this.permissions = permissions;
+    }
+
+    public Administrator(int id, String firstName, String lastName, String username, String password, String email, Role role) {
+        super(id, firstName, lastName, username, password, email);
+        this.permissions = role != null ? role.name() : null;
     }
 
     public String getPermissions() {

@@ -1,8 +1,8 @@
 package service.user;
 
 import model.domain.user.Administrator;
+import model.domain.classification.Role;
 import repository.user.AdminRepository;
-import repository.user.AdminRepositoryImpl;
 import util.Validator;
 
 import java.util.List;
@@ -10,14 +10,12 @@ import java.util.List;
 public class AdminServiceImpl implements AdminService {
     private final AdminRepository adminRepository;
 
-    public AdminServiceImpl() {
-        // Inyección de dependencia: se usa la interfaz para mayor flexibilidad
-        this.adminRepository = new AdminRepositoryImpl();
+    public AdminServiceImpl(AdminRepository adminRepository) {
+        this.adminRepository = adminRepository;
     }
 
     @Override
     public void createAdmin(Administrator admin) {
-        // Validaciones básicas (SOLID: SRP - Responsabilidad única de validar en servicio)
         if (admin == null) {
             throw new IllegalArgumentException("Administrator object cannot be null.");
         }
@@ -37,7 +35,6 @@ public class AdminServiceImpl implements AdminService {
             throw new IllegalArgumentException("Username cannot be null or empty.");
         }
 
-        // Validación de formato con regex (utilizando Validator para DRY - No repetir lógica de validación)
         if (!Validator.isValidEmail(admin.getEmail())) {
             throw new IllegalArgumentException("Invalid email format for administrator.");
         }
@@ -54,7 +51,6 @@ public class AdminServiceImpl implements AdminService {
             throw new IllegalArgumentException("Username must be alphanumeric and may include underscores.");
         }
 
-        // Verificar unicidad del email y username usando los métodos de AdminRepository
         if (adminRepository.findByEmail(admin.getEmail()) != null) {
             throw new IllegalArgumentException("A user with this email already exists.");
         }
@@ -62,7 +58,6 @@ public class AdminServiceImpl implements AdminService {
             throw new IllegalArgumentException("A user with this username already exists.");
         }
 
-        // Delegar la creación al repositorio (KISS - Mantener simple)
         adminRepository.create(admin);
     }
 
@@ -101,12 +96,10 @@ public class AdminServiceImpl implements AdminService {
             throw new IllegalArgumentException("Admin, field, and value cannot be null or empty.");
         }
 
-        // Validar que el admin existe
         if (adminRepository.readById(admin.getId()) == null) {
             throw new RuntimeException("Admin not found with ID: " + admin.getId());
         }
 
-        // Validar campos permitidos para evitar inyecciones SQL
         String lowerField = field.toLowerCase();
         switch (lowerField) {
             case "firstname":
@@ -140,6 +133,8 @@ public class AdminServiceImpl implements AdminService {
                     throw new IllegalArgumentException("A user with this email already exists.");
                 }
                 break;
+            case "permissions":
+                break;
             default:
                 throw new IllegalArgumentException("Invalid field to update: " + field);
         }
@@ -160,15 +155,14 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void assignRoleToAdmin(int userId, String roleName) {
-        if (userId <= 0 || roleName == null || roleName.trim().isEmpty()) {
+    public void assignRoleToAdmin(int userId, Role roleName) {
+        if (userId <= 0 || roleName == null) {
             throw new IllegalArgumentException("User ID and role name must be valid.");
         }
         if (adminRepository.findByUserId(userId) == null) {
             throw new RuntimeException("Admin not found with User ID: " + userId);
         }
-        // Podrías añadir validación para roleName (e.g., contra una lista de roles válidos)
-        adminRepository.assignRole(userId, roleName);
+        adminRepository.assignRole(userId, roleName.name());
     }
 
     @Override
@@ -180,5 +174,21 @@ public class AdminServiceImpl implements AdminService {
             throw new RuntimeException("Admin not found with User ID: " + userId);
         }
         adminRepository.assignAdminStatus(userId, isActive);
+    }
+
+    @Override
+    public Administrator findByEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be null or empty.");
+        }
+        return adminRepository.findByEmail(email);
+    }
+
+    @Override
+    public Administrator findByUsername(String username) {
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be null or empty.");
+        }
+        return adminRepository.findByUsername(username); // Delega al repositorio
     }
 }

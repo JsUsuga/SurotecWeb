@@ -3,6 +3,7 @@ package view;
 import model.domain.user.Administrator;
 import service.user.AdminServiceImpl;
 import view.dashboard.DashboardAdminView;
+import repository.user.AdminRepositoryImpl;
 
 import java.util.Scanner;
 
@@ -11,7 +12,8 @@ public class LoginView {
     private Administrator loggedInAdmin;
 
     public LoginView() {
-        this.adminService = new AdminServiceImpl();
+        // Instanciar AdminRepositoryImpl y pasarlo al constructor de AdminServiceImpl
+        this.adminService = new AdminServiceImpl(new AdminRepositoryImpl());
         this.loggedInAdmin = null;
     }
 
@@ -31,7 +33,7 @@ public class LoginView {
             String password = scanner.nextLine();
 
             try {
-                Administrator admin = adminService.findAdminByUsername(username);
+                Administrator admin = adminService.findByUsername(username);
                 if (admin != null && admin.getPassword().equals(password)) { // Nota: En producción, usa hashing
                     loggedInAdmin = admin;
                     System.out.println("¡Login exitoso! Bienvenido, " + loggedInAdmin.getFirstName() + "!");

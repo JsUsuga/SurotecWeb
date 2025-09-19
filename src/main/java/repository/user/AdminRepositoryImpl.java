@@ -1,7 +1,7 @@
-// repository.admin/AdminRepositoryImpl.java
 package repository.user;
 
 import model.domain.user.Administrator;
+import model.domain.classification.Role;
 import repository.config.DatabaseConnection;
 
 import java.sql.*;
@@ -49,8 +49,9 @@ public class AdminRepositoryImpl implements AdminRepository {
                 String email = rs.getString("email");
                 boolean isActive = rs.getBoolean("is_active");
                 String roleName = rs.getString("role_name");
+                Role role = roleName != null ? Role.valueOf(roleName) : Role.PUBLISHER_OF_ACADEMIC_OFFERS;
 
-                Administrator admin = new Administrator(id, firstName, lastName, username, password, email, roleName != null ? roleName : "PUBLISHER_OF_ACADEMIC_OFFERS");
+                Administrator admin = new Administrator(id, firstName, lastName, username, password, email, role);
                 admins.add(admin);
             }
         } catch (SQLException e) {
@@ -74,8 +75,9 @@ public class AdminRepositoryImpl implements AdminRepository {
                     String email = rs.getString("email");
                     boolean isActive = rs.getBoolean("is_active");
                     String roleName = rs.getString("role_name");
+                    Role role = roleName != null ? Role.valueOf(roleName) : Role.PUBLISHER_OF_ACADEMIC_OFFERS;
 
-                    return new Administrator(userId, firstName, lastName, username, password, email, roleName != null ? roleName : "PUBLISHER_OF_ACADEMIC_OFFERS");
+                    return new Administrator(userId, firstName, lastName, username, password, email, role);
                 }
             }
         } catch (SQLException e) {
@@ -103,8 +105,9 @@ public class AdminRepositoryImpl implements AdminRepository {
                     String email = rs.getString("email");
                     boolean isActive = rs.getBoolean("is_active");
                     String roleName = rs.getString("role_name");
+                    Role role = roleName != null ? Role.valueOf(roleName) : Role.PUBLISHER_OF_ACADEMIC_OFFERS;
 
-                    return new Administrator(id, firstName, lastName, username, password, email, roleName != null ? roleName : "PUBLISHER_OF_ACADEMIC_OFFERS");
+                    return new Administrator(id, firstName, lastName, username, password, email, role);
                 }
             }
         } catch (SQLException e) {
@@ -175,8 +178,9 @@ public class AdminRepositoryImpl implements AdminRepository {
                     String password = rs.getString("password");
                     boolean isActive = rs.getBoolean("is_active");
                     String roleName = rs.getString("role_name");
+                    Role role = roleName != null ? Role.valueOf(roleName) : Role.PUBLISHER_OF_ACADEMIC_OFFERS;
 
-                    return new Administrator(id, firstName, lastName, username, password, email, roleName != null ? roleName : "PUBLISHER_OF_ACADEMIC_OFFERS");
+                    return new Administrator(id, firstName, lastName, username, password, email, role);
                 }
             }
         } catch (SQLException e) {
