@@ -13,7 +13,7 @@ public class DonationRepositoryImpl implements DonationRepository {
     public Donation save(Donation donation) {
         String sql = "INSERT INTO donations (amount, donation_date, user_id, foundation_id) VALUES (?, ?, ?, ?)";
 
-        try (Connection conn = DatabaseConnection.getConnection(); // Correcto según tu estructura
+        try (Connection conn = DatabaseConnection.connect(); // Correcto según tu estructura
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             pstmt.setDouble(1, donation.getAmount());
