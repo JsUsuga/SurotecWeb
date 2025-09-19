@@ -27,7 +27,7 @@ public class Student extends User {
     //Método toString
     @Override
     public String toString() {
-        return "Student{" +
+        return super.toString() + " Student{" +
                 "status=" + status +
                 '}';
     }

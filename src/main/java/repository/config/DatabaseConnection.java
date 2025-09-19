@@ -10,7 +10,7 @@ public class DatabaseConnection {
         Connection connection = null;
 
         try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/surotec_web", "root", "01112105");
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/surotec_web", "root", "123456");
             if (connection != null) {
                 System.out.println("Conexión exitosa a la base de datos surotec");
             }

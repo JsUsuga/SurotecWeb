@@ -17,7 +17,7 @@ public class StudentRepositoryImpl implements StudentRepository {
 
     @Override
     public void create(Student student) {
-        String sql = "INSERT INTO students (id, first_name, last_name, username, password, email, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO student (id, first_name, last_name, username, password, email, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = databaseConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -41,7 +41,7 @@ public class StudentRepositoryImpl implements StudentRepository {
     @Override
     public List<Student> readAll() {
         List<Student> students = new ArrayList<>();
-        String sql = "SELECT * FROM students";
+        String sql = "SELECT * FROM student";
 
         try (Connection conn = databaseConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -70,7 +70,7 @@ public class StudentRepositoryImpl implements StudentRepository {
 
     @Override
     public Student readById(int id) {
-        String sql = "SELECT * FROM students WHERE id = ?";
+        String sql = "SELECT * FROM student WHERE id = ?";
         Student student = null;
 
         try (Connection conn = databaseConnection.connect();
@@ -101,7 +101,7 @@ public class StudentRepositoryImpl implements StudentRepository {
     @Override
     public List<Student> readByStatus(StudentStatus status) {
         List<Student> students = new ArrayList<>();
-        String sql = "SELECT * FROM students WHERE status = ?";
+        String sql = "SELECT * FROM student WHERE status = ?";
 
         try (Connection conn = databaseConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -124,7 +124,7 @@ public class StudentRepositoryImpl implements StudentRepository {
             }
 
         } catch (SQLException e) {
-            System.out.println("Error reading students by status: " + e.getMessage());
+            System.out.println("Error reading student by status: " + e.getMessage());
         }
 
         return students;
@@ -132,7 +132,7 @@ public class StudentRepositoryImpl implements StudentRepository {
 
     @Override
     public void update(Student student) {
-        String sql = "UPDATE students SET first_name=?, last_name=?, username=?, password=?, email=?, status=? WHERE id=?";
+        String sql = "UPDATE student SET first_name=?, last_name=?, username=?, password=?, email=?, status=? WHERE id=?";
 
         try (Connection conn = databaseConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -159,7 +159,7 @@ public class StudentRepositoryImpl implements StudentRepository {
 
     @Override
     public void delete(int id) {
-        String sql = "DELETE FROM students WHERE id=?";
+        String sql = "DELETE FROM student WHERE id=?";
 
         try (Connection conn = databaseConnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -170,7 +170,7 @@ public class StudentRepositoryImpl implements StudentRepository {
             if (rowsAffected > 0) {
                 System.out.println("Student deleted successfully.");
             } else {
-                System.out.println("⚠Student not found.");
+                System.out.println("Student not found.");
             }
 
         } catch (SQLException e) {
