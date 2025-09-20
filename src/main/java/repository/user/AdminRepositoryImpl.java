@@ -14,15 +14,20 @@ public class AdminRepositoryImpl implements AdminRepository {
     @Override
     public void create(Administrator admin) {
         try (Connection conn = dbConnection.connect();
-             PreparedStatement ps = conn.prepareStatement("INSERT INTO admin (id, first_name, last_name, username, password, email, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
-            ps.setInt(1, admin.getId()); // Usar el id proporcionado (documento de identidad)
-            ps.setString(2, admin.getFirstName());
-            ps.setString(3, admin.getLastName());
-            ps.setString(4, admin.getUsername());
-            ps.setString(5, admin.getPassword());
-            ps.setString(6, admin.getEmail());
-            ps.setBoolean(7, true);
+             PreparedStatement ps = conn.prepareStatement("INSERT INTO admin (first_name, last_name, username, password, email, is_active) VALUES (?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, admin.getFirstName());
+            ps.setString(2, admin.getLastName());
+            ps.setString(3, admin.getUsername());
+            ps.setString(4, admin.getPassword());
+            ps.setString(5, admin.getEmail());
+            ps.setBoolean(6, true);
             ps.executeUpdate();
+
+            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    admin.setId(generatedKeys.getInt(1));
+                }
+            }
         } catch (SQLException e) {
             System.out.println("Error connecting: " + e.getMessage());
         }
@@ -33,10 +38,10 @@ public class AdminRepositoryImpl implements AdminRepository {
         List<Administrator> admins = new ArrayList<>();
         try (Connection conn = dbConnection.connect();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT a.*, r.role_name FROM admin a LEFT JOIN admin_role r ON a.id = r.admin_id")) {
+             ResultSet rs = stmt.executeQuery("SELECT a.*, r.role_name FROM admin a LEFT JOIN admin_role r ON a.user_id = r.user_id")) {
 
             while (rs.next()) {
-                int id = rs.getInt("id");
+                int id = rs.getInt("user_id");
                 String firstName = rs.getString("first_name");
                 String lastName = rs.getString("last_name");
                 String username = rs.getString("username");
@@ -44,7 +49,7 @@ public class AdminRepositoryImpl implements AdminRepository {
                 String email = rs.getString("email");
                 boolean isActive = rs.getBoolean("is_active");
                 String roleName = rs.getString("role_name");
-                Role role = (roleName != null) ? Role.valueOf(roleName) : Role.PUBLISHER_OF_ACADEMIC_OFFERS;
+                Role role = roleName != null ? Role.valueOf(roleName) : Role.PUBLISHER_OF_ACADEMIC_OFFERS;
 
                 Administrator admin = new Administrator(id, firstName, lastName, username, password, email, role);
                 admins.add(admin);
@@ -58,11 +63,11 @@ public class AdminRepositoryImpl implements AdminRepository {
     @Override
     public Administrator readById(int id) {
         try (Connection conn = dbConnection.connect();
-             PreparedStatement ps = conn.prepareStatement("SELECT a.*, r.role_name FROM admin a LEFT JOIN admin_role r ON a.id = r.admin_id WHERE a.id = ?")) {
+             PreparedStatement ps = conn.prepareStatement("SELECT a.*, r.role_name FROM admin a LEFT JOIN admin_role r ON a.user_id = r.user_id WHERE a.user_id = ?")) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    int userId = rs.getInt("id");
+                    int userId = rs.getInt("user_id");
                     String firstName = rs.getString("first_name");
                     String lastName = rs.getString("last_name");
                     String username = rs.getString("username");
@@ -70,7 +75,7 @@ public class AdminRepositoryImpl implements AdminRepository {
                     String email = rs.getString("email");
                     boolean isActive = rs.getBoolean("is_active");
                     String roleName = rs.getString("role_name");
-                    Role role = (roleName != null) ? Role.valueOf(roleName) : Role.PUBLISHER_OF_ACADEMIC_OFFERS;
+                    Role role = roleName != null ? Role.valueOf(roleName) : Role.PUBLISHER_OF_ACADEMIC_OFFERS;
 
                     return new Administrator(userId, firstName, lastName, username, password, email, role);
                 }
@@ -89,18 +94,18 @@ public class AdminRepositoryImpl implements AdminRepository {
     @Override
     public Administrator findByUsername(String username) {
         try (Connection conn = dbConnection.connect();
-             PreparedStatement ps = conn.prepareStatement("SELECT a.*, r.role_name FROM admin a LEFT JOIN admin_role r ON a.id = r.admin_id WHERE a.username = ?")) {
+             PreparedStatement ps = conn.prepareStatement("SELECT a.*, r.role_name FROM admin a LEFT JOIN admin_role r ON a.user_id = r.user_id WHERE a.username = ?")) {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    int id = rs.getInt("id");
+                    int id = rs.getInt("user_id");
                     String firstName = rs.getString("first_name");
                     String lastName = rs.getString("last_name");
                     String password = rs.getString("password");
                     String email = rs.getString("email");
                     boolean isActive = rs.getBoolean("is_active");
                     String roleName = rs.getString("role_name");
-                    Role role = (roleName != null) ? Role.valueOf(roleName) : Role.PUBLISHER_OF_ACADEMIC_OFFERS;
+                    Role role = roleName != null ? Role.valueOf(roleName) : Role.PUBLISHER_OF_ACADEMIC_OFFERS;
 
                     return new Administrator(id, firstName, lastName, username, password, email, role);
                 }
@@ -114,7 +119,7 @@ public class AdminRepositoryImpl implements AdminRepository {
     @Override
     public void update(Administrator admin, String field, String value) {
         try (Connection conn = dbConnection.connect();
-             PreparedStatement ps = conn.prepareStatement("UPDATE admin SET " + field + " = ? WHERE id = ?")) {
+             PreparedStatement ps = conn.prepareStatement("UPDATE admin SET " + field + " = ? WHERE user_id = ?")) {
             ps.setString(1, value);
             ps.setInt(2, admin.getId());
             ps.executeUpdate();
@@ -126,7 +131,7 @@ public class AdminRepositoryImpl implements AdminRepository {
     @Override
     public void delete(int id) {
         try (Connection conn = dbConnection.connect();
-             PreparedStatement ps = conn.prepareStatement("DELETE FROM admin WHERE id = ?")) {
+             PreparedStatement ps = conn.prepareStatement("DELETE FROM admin WHERE user_id = ?")) {
             ps.setInt(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -137,7 +142,7 @@ public class AdminRepositoryImpl implements AdminRepository {
     @Override
     public void assignRole(int userId, String roleName) {
         try (Connection conn = dbConnection.connect();
-             PreparedStatement ps = conn.prepareStatement("INSERT INTO admin_role (admin_id, role_name) VALUES (?, ?) ON DUPLICATE KEY UPDATE role_name = ?")) {
+             PreparedStatement ps = conn.prepareStatement("INSERT INTO admin_role (user_id, role_name) VALUES (?, ?) ON DUPLICATE KEY UPDATE role_name = ?")) {
             ps.setInt(1, userId);
             ps.setString(2, roleName);
             ps.setString(3, roleName);
@@ -150,7 +155,7 @@ public class AdminRepositoryImpl implements AdminRepository {
     @Override
     public void assignAdminStatus(int userId, boolean isActive) {
         try (Connection conn = dbConnection.connect();
-             PreparedStatement ps = conn.prepareStatement("UPDATE admin SET is_active = ? WHERE id = ?")) {
+             PreparedStatement ps = conn.prepareStatement("UPDATE admin SET is_active = ? WHERE user_id = ?")) {
             ps.setBoolean(1, isActive);
             ps.setInt(2, userId);
             ps.executeUpdate();
@@ -162,18 +167,18 @@ public class AdminRepositoryImpl implements AdminRepository {
     @Override
     public Administrator findByEmail(String email) {
         try (Connection conn = dbConnection.connect();
-             PreparedStatement ps = conn.prepareStatement("SELECT a.*, r.role_name FROM admin a LEFT JOIN admin_role r ON a.id = r.admin_id WHERE a.email = ?")) {
+             PreparedStatement ps = conn.prepareStatement("SELECT a.*, r.role_name FROM admin a LEFT JOIN admin_role r ON a.user_id = r.user_id WHERE a.email = ?")) {
             ps.setString(1, email);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    int id = rs.getInt("id");
+                    int id = rs.getInt("user_id");
                     String firstName = rs.getString("first_name");
                     String lastName = rs.getString("last_name");
                     String username = rs.getString("username");
                     String password = rs.getString("password");
                     boolean isActive = rs.getBoolean("is_active");
                     String roleName = rs.getString("role_name");
-                    Role role = (roleName != null) ? Role.valueOf(roleName) : Role.PUBLISHER_OF_ACADEMIC_OFFERS;
+                    Role role = roleName != null ? Role.valueOf(roleName) : Role.PUBLISHER_OF_ACADEMIC_OFFERS;
 
                     return new Administrator(id, firstName, lastName, username, password, email, role);
                 }

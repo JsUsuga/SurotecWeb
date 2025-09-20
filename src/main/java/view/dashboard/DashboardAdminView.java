@@ -1,11 +1,10 @@
 package view.dashboard;
 
-import model.domain.classification.Role;
-import model.domain.user.Administrator;
 import service.user.AdminServiceImpl;
+import model.domain.user.Administrator;
+import model.domain.classification.Role;
 import view.LoginView;
 
-import java.util.List;
 import java.util.Scanner;
 
 public class DashboardAdminView {
@@ -21,88 +20,76 @@ public class DashboardAdminView {
 
     public void show() {
         while (true) {
-            System.out.println("\n=== Dashboard de Administrador ===");
-            System.out.println("Bienvenido, " + loginView.getLoggedInAdmin().getFirstName() + "!");
-            System.out.println("1. Ver todos los administradores (Consulta con JOIN)");
-            System.out.println("2. Crear un nuevo administrador");
-            System.out.println("3. Actualizar un administrador");
-            System.out.println("4. Eliminar un administrador");
-            System.out.println("5. Asignar rol a un administrador (Inserción con JOIN implícito)");
-            System.out.println("6. Cerrar sesión");
+            Administrator loggedInAdmin = loginView.getLoggedInAdmin();
+            if (loggedInAdmin == null) {
+                System.out.println("Sesión cerrada. Regresando al login...");
+                break;
+            }
+
+            System.out.println("\n=== Panel de Administración ===");
+            System.out.println("Bienvenido, " + loggedInAdmin.getFirstName() + " " + loggedInAdmin.getLastName());
+            System.out.println("1. Listar todos los administradores");
+            System.out.println("2. Asignar rol a un administrador");
+            System.out.println("3. Actualizar datos de un administrador");
+            System.out.println("4. Cerrar sesión");
             System.out.print("Elige una opción: ");
 
-            int choice = getUserChoice();
+            int option = scanner.nextInt();
+            scanner.nextLine(); // Consumir salto de línea
 
-            switch (choice) {
+            switch (option) {
                 case 1:
-                    viewAllAdmins();
+                    listAllAdmins();
                     break;
                 case 2:
-                    createAdmin();
+                    assignRole();
                     break;
                 case 3:
                     updateAdmin();
                     break;
                 case 4:
-                    deleteAdmin();
+                    loginView.logout();
                     break;
-                case 5:
-                    assignRole();
-                    break;
-                case 6:
-                    logout();
-                    return;
                 default:
-                    System.out.println("Opción no válida. Intenta de nuevo.");
+                    System.out.println("Opción inválida. Intenta de nuevo.");
             }
         }
     }
 
-    private int getUserChoice() {
-        try {
-            return Integer.parseInt(scanner.nextLine());
-        } catch (NumberFormatException e) {
-            return -1; // Valor inválido
+    private void listAllAdmins() {
+        System.out.println("\n=== Lista de Administradores ===");
+        for (Administrator admin : adminService.getAllAdmins()) {
+            System.out.println(admin);
         }
     }
 
-    private void viewAllAdmins() {
-        List<Administrator> admins = adminService.getAllAdmins();
-        if (admins.isEmpty()) {
-            System.out.println("No hay administradores registrados.");
-        } else {
-            for (Administrator admin : admins) {
-                System.out.println("ID: " + admin.getId() + ", Nombre: " + admin.getFirstName() + " " + admin.getLastName() + ", Rol: " + admin.getPermissions());
-            }
-        }
-    }
-
-    private void createAdmin() {
-        System.out.print("ID (documento único): ");
-        int id = scanner.nextInt();
+    private void assignRole() {
+        System.out.println("\n=== Asignar Rol ===");
+        System.out.print("Ingresa el ID del usuario al que deseas asignar un rol: ");
+        int userId = scanner.nextInt();
         scanner.nextLine(); // Consumir salto de línea
-        System.out.print("Nombre: ");
-        String firstName = scanner.nextLine();
-        System.out.print("Apellido: ");
-        String lastName = scanner.nextLine();
-        System.out.print("Usuario: ");
-        String username = scanner.nextLine();
-        System.out.print("Contraseña: ");
-        String password = scanner.nextLine();
-        System.out.print("Email: ");
-        String email = scanner.nextLine();
 
-        Administrator admin = new Administrator(id, firstName, lastName, username, password, email, Role.PUBLISHER_OF_ACADEMIC_OFFERS);
+        System.out.println("Roles disponibles:");
+        for (Role role : Role.values()) {
+            System.out.println(role);
+        }
+        System.out.print("Ingresa el rol: ");
+        String roleInput = scanner.nextLine().toUpperCase();
+        Role role = null;
         try {
-            adminService.createAdmin(admin);
-            System.out.println("Administrador creado con ID: " + id);
+            role = Role.valueOf(roleInput);
+            adminService.assignRoleToAdmin(userId, role);
+            System.out.println("Rol asignado exitosamente.");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Rol inválido. Por favor, usa uno de los roles listados.");
         } catch (Exception e) {
-            System.out.println("Error al crear administrador: " + e.getMessage());
+            System.out.println("Error al asignar rol: " + e.getMessage());
         }
     }
 
     private void updateAdmin() {
-        System.out.print("ID del administrador a actualizar: ");
+        System.out.println("\n=== Actualizar Administrador ===");
+        System.out.print("Ingresa el ID del administrador a actualizar: ");
         int id = scanner.nextInt();
         scanner.nextLine(); // Consumir salto de línea
 
@@ -112,44 +99,29 @@ public class DashboardAdminView {
             return;
         }
 
-        System.out.print("Campo a actualizar (first_name, last_name, username, password, email, permissions): ");
-        String field = scanner.nextLine();
-        System.out.print("Nuevo valor: ");
+        System.out.println("Selecciona el campo a actualizar: 1. Nombre, 2. Apellido, 3. Usuario, 4. Contraseña, 5. Email");
+        int fieldOption = scanner.nextInt();
+        scanner.nextLine(); // Consumir salto de línea
+        System.out.print("Ingresa el nuevo valor: ");
         String value = scanner.nextLine();
 
-        adminService.updateAdmin(admin, field, value);
-        System.out.println("Administrador actualizado.");
-    }
-
-    private void deleteAdmin() {
-        System.out.print("ID del administrador a eliminar: ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // Consumir salto de línea
-
-        adminService.deleteAdmin(id);
-        System.out.println("Administrador eliminado.");
-    }
-
-    private void assignRole() {
-        System.out.print("ID del administrador: ");
-        int userId = scanner.nextInt();
-        scanner.nextLine(); // Consumir salto de línea
-
-        System.out.println("Roles disponibles: ");
-        for (Role role : Role.values()) {
-            System.out.println(role);
+        String field = "";
+        switch (fieldOption) {
+            case 1: field = "firstname"; break;
+            case 2: field = "lastname"; break;
+            case 3: field = "username"; break;
+            case 4: field = "password"; break;
+            case 5: field = "email"; break;
+            default:
+                System.out.println("Opción de campo inválida.");
+                return;
         }
-        System.out.print("Role a asignar: ");
-        String roleInput = scanner.nextLine().toUpperCase();
-        Role role = Role.valueOf(roleInput);
 
-        adminService.assignRoleToAdmin(userId, role);
-        System.out.println("Rol asignado.");
-    }
-
-    private void logout() {
-        System.out.println("Cerrando sesión...");
-        loginView.logout();
-        System.out.println("Sesión cerrada. ¡Hasta pronto!");
+        try {
+            adminService.updateAdmin(admin, field, value);
+            System.out.println("Administrador actualizado exitosamente.");
+        } catch (Exception e) {
+            System.out.println("Error al actualizar administrador: " + e.getMessage());
+        }
     }
 }
