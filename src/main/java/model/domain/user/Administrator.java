@@ -15,16 +15,11 @@ public class Administrator extends User {
 
     public Administrator(int id, String firstName, String lastName, String username, String password, String email, Role role) {
         super(id, firstName, lastName, username, password, email);
-        this.permissions = role != null ? role.name() : null;
+        this.permissions = (role != null) ? role.name() : "ADMIN";
     }
 
-    public String getPermissions() {
-        return permissions;
-    }
-
-    public void setPermissions(String permissions) {
-        this.permissions = permissions;
-    }
+    public String getPermissions() { return permissions; }
+    public void setPermissions(String permissions) { this.permissions = permissions; }
 
     @Override
     public String toString() {
