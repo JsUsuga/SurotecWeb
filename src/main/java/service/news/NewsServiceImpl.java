@@ -1,6 +1,7 @@
 package service.news;
 
 import model.domain.news.News;
+import model.domain.news.NewsCategory;
 import repository.news.NewsRepository;
 import repository.news.NewsRepositoryImpl;
 
@@ -33,6 +34,17 @@ public class NewsServiceImpl implements NewsService {
     @Override
     public News readById(Long id) {
         return newsRepository.readById(id);
+    }
+
+    public void createNews(News news) {
+    }
+
+    public List<News> getAllNews() {
+        return List.of();
+    }
+
+    public List<News> getNewsByCategory(NewsCategory category) {
+        return newsRepository.getNewsByCategory(category);
     }
 }
 

@@ -12,6 +12,9 @@ import view.dashboard.DashboardStudentView;
 import repository.user.AdminRepositoryImpl;
 /*import repository.user.FoundationRepositoryImpl;*/
 import repository.user.StudentRepositoryImpl;
+import model.domain.news.News;
+import model.domain.news.NewsCategory;
+
 
 import java.util.Scanner;
 

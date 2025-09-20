@@ -9,4 +9,6 @@ public interface NewsRepository  {
     List<News> readAll();
     News readById(Long id);
     List<News> readByCategory(NewsCategory cat);
+
+    List<News> getNewsByCategory(NewsCategory category);
 }

@@ -113,4 +113,9 @@ public class NewsRepositoryImpl implements NewsRepository {
         }
         return newsList;
     }
+
+    @Override
+    public List<News> getNewsByCategory(NewsCategory category) {
+        return List.of();
+    }
 }
